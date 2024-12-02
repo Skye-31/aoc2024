@@ -1,15 +1,19 @@
 use aoc_runner_derive::aoc;
 
-fn is_line_safe<I>(mut numbers: I) -> bool
+fn is_line_safe<'a, I>(mut numbers: I) -> bool
 where
-    I: Iterator<Item = i16>,
+    I: Iterator<Item = &'a str>,
 {
-    let Some(mut prev) = numbers.next() else { return false };
+    let mut prev = match numbers.next() {
+        Some(num) => num.parse::<i16>().unwrap(),
+        None => return false,
+    };
 
     let mut ascending = true;
     let mut descending = true;
 
     for next in numbers {
+        let next = next.parse::<i16>().unwrap();
         let diff = prev - next;
 
         if diff == 0 || diff.abs() > 3 {
@@ -38,8 +42,7 @@ fn part1(input: &str) -> usize {
         .lines()
         .filter(|line| {
             let elements = line
-                .split_whitespace()
-                .map(|l| l.parse().unwrap());
+                .split_whitespace();
 
             is_line_safe(elements)
         })
@@ -51,9 +54,8 @@ fn part2(input: &str) -> usize {
     input
         .lines()
         .filter(|line| {
-            let elements: Vec<i16> = line
+            let elements: Vec<&str> = line
                 .split_whitespace()
-                .map(|l| l.parse().unwrap())
                 .collect();
 
             is_line_safe(elements.iter().cloned())
